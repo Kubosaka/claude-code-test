@@ -5,8 +5,11 @@ import Home from '../app/page'
 global.fetch = jest.fn()
 
 describe('Todo App', () => {
+  let fetchSpy: jest.SpyInstance
+
   beforeEach(() => {
-    (fetch as jest.Mock).mockClear()
+    fetchSpy = global.fetch as jest.MockedFunction<typeof fetch>
+    fetchSpy.mockClear()
   })
 
   afterEach(() => {
@@ -14,7 +17,7 @@ describe('Todo App', () => {
   })
 
   it('renders the todo app title', () => {
-    (fetch as jest.Mock).mockResolvedValueOnce({
+    fetchSpy.mockResolvedValueOnce({
       ok: true,
       json: async () => [],
     })
@@ -24,7 +27,7 @@ describe('Todo App', () => {
   })
 
   it('renders input field and add button', () => {
-    (fetch as jest.Mock).mockResolvedValueOnce({
+    fetchSpy.mockResolvedValueOnce({
       ok: true,
       json: async () => [],
     })
@@ -40,7 +43,7 @@ describe('Todo App', () => {
       { id: 2, text: 'Another todo', completed: true },
     ]
 
-    ;(fetch as jest.Mock).mockResolvedValueOnce({
+    fetchSpy.mockResolvedValueOnce({
       ok: true,
       json: async () => mockTodos,
     })
@@ -56,7 +59,7 @@ describe('Todo App', () => {
   })
 
   it('adds a new todo when form is submitted', async () => {
-    ;(fetch as jest.Mock)
+    fetchSpy
       .mockResolvedValueOnce({
         ok: true,
         json: async () => [],
@@ -79,7 +82,7 @@ describe('Todo App', () => {
     fireEvent.click(addButton)
 
     await waitFor(() => {
-      expect(fetch).toHaveBeenCalledWith('/api/todos', {
+      expect(fetchSpy).toHaveBeenCalledWith('/api/todos', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -87,10 +90,15 @@ describe('Todo App', () => {
         body: JSON.stringify({ text: 'New todo' }),
       })
     })
+
+    // Assert that the new todo appears in the UI
+    await waitFor(() => {
+      expect(screen.getByText('New todo')).toBeInTheDocument()
+    })
   })
 
   it('does not add empty todo', async () => {
-    ;(fetch as jest.Mock).mockResolvedValueOnce({
+    fetchSpy.mockResolvedValueOnce({
       ok: true,
       json: async () => [],
     })
@@ -101,7 +109,7 @@ describe('Todo App', () => {
     fireEvent.click(addButton)
 
     // Should only be called once for initial fetch, not for adding empty todo
-    expect(fetch).toHaveBeenCalledTimes(1)
+    expect(fetchSpy).toHaveBeenCalledTimes(1)
   })
 
   it('toggles todo completion', async () => {
@@ -109,7 +117,7 @@ describe('Todo App', () => {
       { id: 1, text: 'Test todo', completed: false },
     ]
 
-    ;(fetch as jest.Mock)
+    fetchSpy
       .mockResolvedValueOnce({
         ok: true,
         json: async () => mockTodos,
@@ -133,7 +141,7 @@ describe('Todo App', () => {
     fireEvent.click(completeButton)
 
     await waitFor(() => {
-      expect(fetch).toHaveBeenCalledWith('/api/todos/1', {
+      expect(fetchSpy).toHaveBeenCalledWith('/api/todos/1', {
         method: 'PUT',
       })
     })
@@ -144,7 +152,7 @@ describe('Todo App', () => {
       { id: 1, text: 'Test todo', completed: false },
     ]
 
-    ;(fetch as jest.Mock)
+    fetchSpy
       .mockResolvedValueOnce({
         ok: true,
         json: async () => mockTodos,
@@ -168,7 +176,7 @@ describe('Todo App', () => {
     fireEvent.click(deleteButton)
 
     await waitFor(() => {
-      expect(fetch).toHaveBeenCalledWith('/api/todos/1', {
+      expect(fetchSpy).toHaveBeenCalledWith('/api/todos/1', {
         method: 'DELETE',
       })
     })
