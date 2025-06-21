@@ -145,6 +145,11 @@ describe('Todo App', () => {
         method: 'PUT',
       })
     })
+
+    // Verify UI reflects the updated completion state
+    await waitFor(() => {
+      expect(screen.getByText('Undo')).toBeInTheDocument()
+    })
   })
 
   it('deletes todo', async () => {
@@ -179,6 +184,11 @@ describe('Todo App', () => {
       expect(fetchSpy).toHaveBeenCalledWith('/api/todos/1', {
         method: 'DELETE',
       })
+    })
+
+    // Verify the todo item is no longer present in the DOM
+    await waitFor(() => {
+      expect(screen.queryByText('Test todo')).not.toBeInTheDocument()
     })
   })
 })

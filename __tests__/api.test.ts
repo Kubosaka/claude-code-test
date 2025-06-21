@@ -21,8 +21,10 @@ describe('Validation Utils', () => {
 
     it('should handle edge cases', () => {
       expect(isValidTodoText('a')).toBe(true) // Single character
-      expect(isValidTodoText('a'.repeat(255))).toBe(true) // Max length
+      expect(isValidTodoText('a'.repeat(255))).toBe(true) // Max trimmed length
       expect(isValidTodoText('  valid text  ')).toBe(true) // Trimmed spaces
+      expect(isValidTodoText('  ' + 'a'.repeat(255) + '  ')).toBe(true) // Max trimmed length with spaces
+      expect(isValidTodoText('  ' + 'a'.repeat(256) + '  ')).toBe(false) // Exceeds max trimmed length
     })
   })
 
