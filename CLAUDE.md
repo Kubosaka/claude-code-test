@@ -9,6 +9,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm run start` - Start production server
 - `npm run lint` - Run ESLint
 
+## GitHub Operations
+
+Use MCP GitHub tools for all GitHub operations instead of the `gh` CLI:
+- Creating pull requests: Use `mcp__github__create_pull_request`
+- Managing issues: Use `mcp__github__create_issue`, `mcp__github__update_issue`
+- Repository operations: Use MCP GitHub tools for consistent authentication
+
 ## Docker Commands
 
 - `docker-compose up` - Start the full application stack (app + MySQL database)
