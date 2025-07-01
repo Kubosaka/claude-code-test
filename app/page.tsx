@@ -1,6 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import AddTodoForm from '../components/AddTodoForm'
+import TodoList from '../components/TodoList'
 
 interface Todo {
   id: number
@@ -79,43 +81,17 @@ export default function Home() {
     <div className="container">
       <h1>TODO App</h1>
       
-      <div className="todo-form">
-        <input
-          type="text"
-          value={inputText}
-          onChange={(e) => setInputText(e.target.value)}
-          placeholder="Enter a new todo..."
-          className="todo-input"
-          onKeyPress={(e) => e.key === 'Enter' && addTodo()}
-        />
-        <button onClick={addTodo} className="todo-button">
-          Add Todo
-        </button>
-      </div>
+      <AddTodoForm
+        inputText={inputText}
+        setInputText={setInputText}
+        onAddTodo={addTodo}
+      />
 
-      <div className="todo-list">
-        {todos.map((todo) => (
-          <div key={todo.id} className="todo-item">
-            <span className={`todo-text ${todo.completed ? 'completed' : ''}`}>
-              {todo.text}
-            </span>
-            <div className="todo-actions">
-              <button
-                onClick={() => toggleTodo(todo.id)}
-                className="toggle-button"
-              >
-                {todo.completed ? 'Undo' : 'Complete'}
-              </button>
-              <button
-                onClick={() => deleteTodo(todo.id)}
-                className="delete-button"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+      <TodoList
+        todos={todos}
+        onToggle={toggleTodo}
+        onDelete={deleteTodo}
+      />
     </div>
   )
 }
