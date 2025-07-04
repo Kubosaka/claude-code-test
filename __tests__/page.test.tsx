@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import Home from '../app/page'
 
 // Mock fetch globally
@@ -16,31 +16,37 @@ describe('Todo App', () => {
     jest.restoreAllMocks()
   })
 
-  it('renders the todo app title', () => {
+  it('renders the todo app title', async () => {
     fetchSpy.mockResolvedValueOnce({
       ok: true,
       json: async () => [],
     })
 
-    render(<Home />)
+    await act(async () => {
+      render(<Home />)
+    })
+    
     expect(screen.getByText('TODO App')).toBeInTheDocument()
   })
 
-  it('renders input field and add button', () => {
+  it('renders input field and add button', async () => {
     fetchSpy.mockResolvedValueOnce({
       ok: true,
       json: async () => [],
     })
 
-    render(<Home />)
+    await act(async () => {
+      render(<Home />)
+    })
+    
     expect(screen.getByPlaceholderText('Enter a new todo...')).toBeInTheDocument()
     expect(screen.getByText('Add Todo')).toBeInTheDocument()
   })
 
   it('fetches todos on mount', async () => {
     const mockTodos = [
-      { id: 1, text: 'Test todo', completed: false },
-      { id: 2, text: 'Another todo', completed: true },
+      { id: 1, text: 'Test todo', completed: false, priority: 1 },
+      { id: 2, text: 'Another todo', completed: true, priority: 2 },
     ]
 
     fetchSpy.mockResolvedValueOnce({
@@ -48,7 +54,9 @@ describe('Todo App', () => {
       json: async () => mockTodos,
     })
 
-    render(<Home />)
+    await act(async () => {
+      render(<Home />)
+    })
 
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledWith('/api/todos')
@@ -70,16 +78,20 @@ describe('Todo App', () => {
       })
       .mockResolvedValueOnce({
         ok: true,
-        json: async () => [{ id: 1, text: 'New todo', completed: false }],
+        json: async () => [{ id: 1, text: 'New todo', completed: false, priority: 1 }],
       })
 
-    render(<Home />)
+    await act(async () => {
+      render(<Home />)
+    })
 
     const input = screen.getByPlaceholderText('Enter a new todo...')
     const addButton = screen.getByText('Add Todo')
 
-    fireEvent.change(input, { target: { value: 'New todo' } })
-    fireEvent.click(addButton)
+    await act(async () => {
+      fireEvent.change(input, { target: { value: 'New todo' } })
+      fireEvent.click(addButton)
+    })
 
     await waitFor(() => {
       expect(fetchSpy).toHaveBeenCalledWith('/api/todos', {
@@ -87,7 +99,7 @@ describe('Todo App', () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ text: 'New todo' }),
+        body: JSON.stringify({ text: 'New todo', priority: 1 }),
       })
     })
 
@@ -103,10 +115,15 @@ describe('Todo App', () => {
       json: async () => [],
     })
 
-    render(<Home />)
+    await act(async () => {
+      render(<Home />)
+    })
 
     const addButton = screen.getByText('Add Todo')
-    fireEvent.click(addButton)
+    
+    await act(async () => {
+      fireEvent.click(addButton)
+    })
 
     // Should only be called once for initial fetch, not for adding empty todo
     expect(fetchSpy).toHaveBeenCalledTimes(1)
@@ -114,7 +131,7 @@ describe('Todo App', () => {
 
   it('toggles todo completion', async () => {
     const mockTodos = [
-      { id: 1, text: 'Test todo', completed: false },
+      { id: 1, text: 'Test todo', completed: false, priority: 1 },
     ]
 
     fetchSpy
@@ -128,17 +145,22 @@ describe('Todo App', () => {
       })
       .mockResolvedValueOnce({
         ok: true,
-        json: async () => [{ id: 1, text: 'Test todo', completed: true }],
+        json: async () => [{ id: 1, text: 'Test todo', completed: true, priority: 1 }],
       })
 
-    render(<Home />)
+    await act(async () => {
+      render(<Home />)
+    })
 
     await waitFor(() => {
       expect(screen.getByText('Test todo')).toBeInTheDocument()
     })
 
     const completeButton = screen.getByText('Complete')
-    fireEvent.click(completeButton)
+    
+    await act(async () => {
+      fireEvent.click(completeButton)
+    })
 
     await waitFor(() => {
       expect(fetchSpy).toHaveBeenCalledWith('/api/todos/1', {
@@ -154,7 +176,7 @@ describe('Todo App', () => {
 
   it('deletes todo', async () => {
     const mockTodos = [
-      { id: 1, text: 'Test todo', completed: false },
+      { id: 1, text: 'Test todo', completed: false, priority: 1 },
     ]
 
     fetchSpy
@@ -171,14 +193,19 @@ describe('Todo App', () => {
         json: async () => [],
       })
 
-    render(<Home />)
+    await act(async () => {
+      render(<Home />)
+    })
 
     await waitFor(() => {
       expect(screen.getByText('Test todo')).toBeInTheDocument()
     })
 
     const deleteButton = screen.getByText('Delete')
-    fireEvent.click(deleteButton)
+    
+    await act(async () => {
+      fireEvent.click(deleteButton)
+    })
 
     await waitFor(() => {
       expect(fetchSpy).toHaveBeenCalledWith('/api/todos/1', {
