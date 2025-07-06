@@ -65,6 +65,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 1rem;
 }
 
 .todo-item:last-child {
@@ -109,4 +110,40 @@ body {
 
 .toggle-button:hover {
   background: #218838;
+}
+
+.priority-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.priority-display {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-right: 1rem;
+}
+
+.stars {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.star {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #ddd;
+  transition: color 0.2s;
+}
+
+.star.selected {
+  color: #ffd700;
+}
+
+.star:hover {
+  color: #ffd700;
 }

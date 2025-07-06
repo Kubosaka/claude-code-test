@@ -3,10 +3,12 @@
 interface AddTodoFormProps {
   inputText: string
   setInputText: (text: string) => void
+  priority: number
+  setPriority: (priority: number) => void
   onAddTodo: () => void
 }
 
-export default function AddTodoForm({ inputText, setInputText, onAddTodo }: AddTodoFormProps) {
+export default function AddTodoForm({ inputText, setInputText, priority, setPriority, onAddTodo }: AddTodoFormProps) {
   return (
     <div className="todo-form">
       <input
@@ -17,6 +19,21 @@ export default function AddTodoForm({ inputText, setInputText, onAddTodo }: AddT
         className="todo-input"
         onKeyPress={(e) => e.key === 'Enter' && onAddTodo()}
       />
+      <div className="priority-selector">
+        <label>Priority: </label>
+        <div className="stars">
+          {[1, 2, 3, 4, 5].map((star) => (
+            <button
+              key={star}
+              type="button"
+              className={`star ${star <= priority ? 'selected' : ''}`}
+              onClick={() => setPriority(star)}
+            >
+              ★
+            </button>
+          ))}
+        </div>
+      </div>
       <button onClick={onAddTodo} className="todo-button">
         Add Todo
       </button>

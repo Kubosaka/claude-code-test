@@ -8,11 +8,13 @@ interface Todo {
   id: number
   text: string
   completed: boolean
+  priority: number
 }
 
 export default function Home() {
   const [todos, setTodos] = useState<Todo[]>([])
   const [inputText, setInputText] = useState('')
+  const [priority, setPriority] = useState(1)
 
   useEffect(() => {
     fetchTodos()
@@ -22,9 +24,10 @@ export default function Home() {
     try {
       const response = await fetch('/api/todos')
       const data = await response.json()
-      setTodos(data)
+      setTodos(Array.isArray(data) ? data : [])
     } catch (error) {
       console.error('Error fetching todos:', error)
+      setTodos([])
     }
   }
 
@@ -37,11 +40,12 @@ export default function Home() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ text: inputText }),
+        body: JSON.stringify({ text: inputText, priority }),
       })
       
       if (response.ok) {
         setInputText('')
+        setPriority(1)
         fetchTodos()
       }
     } catch (error) {
@@ -77,6 +81,24 @@ export default function Home() {
     }
   }
 
+  const updatePriority = async (id: number, newPriority: number) => {
+    try {
+      const response = await fetch(`/api/todos/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ priority: newPriority }),
+      })
+      
+      if (response.ok) {
+        fetchTodos()
+      }
+    } catch (error) {
+      console.error('Error updating priority:', error)
+    }
+  }
+
   return (
     <div className="container">
       <h1>TODO App</h1>
@@ -84,6 +106,8 @@ export default function Home() {
       <AddTodoForm
         inputText={inputText}
         setInputText={setInputText}
+        priority={priority}
+        setPriority={setPriority}
         onAddTodo={addTodo}
       />
 
@@ -91,6 +115,7 @@ export default function Home() {
         todos={todos}
         onToggle={toggleTodo}
         onDelete={deleteTodo}
+        onUpdatePriority={updatePriority}
       />
     </div>
   )

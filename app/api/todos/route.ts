@@ -3,7 +3,7 @@ import db from '@/lib/db'
 
 export async function GET() {
   try {
-    const [rows] = await db.execute('SELECT * FROM todos ORDER BY created_at DESC')
+    const [rows] = await db.execute('SELECT * FROM todos ORDER BY priority DESC, created_at DESC')
     return NextResponse.json(rows)
   } catch (error) {
     console.error('Database error:', error)
@@ -13,15 +13,15 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { text } = await request.json()
+    const { text, priority = 1 } = await request.json()
     
     if (!text) {
       return NextResponse.json({ error: 'Text is required' }, { status: 400 })
     }
 
     const [result] = await db.execute(
-      'INSERT INTO todos (text) VALUES (?)',
-      [text]
+      'INSERT INTO todos (text, priority) VALUES (?, ?)',
+      [text, priority]
     )
     
     return NextResponse.json({ success: true, id: (result as any).insertId })
