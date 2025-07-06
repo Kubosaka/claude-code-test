@@ -7,7 +7,18 @@ export async function PUT(
 ) {
   try {
     const id = params.id
-    const body = await request.json()
+    
+    // Handle empty request body safely
+    let body = {}
+    try {
+      const text = await request.text()
+      if (text) {
+        body = JSON.parse(text)
+      }
+    } catch (parseError) {
+      // If JSON parsing fails, assume empty body for toggle operation
+      body = {}
+    }
     
     const [rows] = await db.execute('SELECT * FROM todos WHERE id = ?', [id])
     const todos = rows as any[]
@@ -18,10 +29,10 @@ export async function PUT(
 
     const currentTodo = todos[0]
     
-    if (body.priority !== undefined) {
+    if ((body as any).priority !== undefined) {
       await db.execute(
         'UPDATE todos SET priority = ? WHERE id = ?',
-        [body.priority, id]
+        [(body as any).priority, id]
       )
     } else {
       const newCompleted = !currentTodo.completed
