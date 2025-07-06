@@ -2,6 +2,10 @@
 
 Next.js 14 todo application with MySQL backend using Docker for containerization.
 
+## UI Preview
+
+![TODO App Interface](todo-app-ui.png)
+
 ## Features
 
 - ✅ Create, read, update, and delete todos
