@@ -1,9 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
 import db from '@/lib/db'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const [rows] = await db.execute('SELECT * FROM todos ORDER BY priority DESC, created_at DESC')
+    const { searchParams } = new URL(request.url)
+    const date = searchParams.get('date')
+    
+    let query = 'SELECT * FROM todos'
+    let params: any[] = []
+    
+    if (date) {
+      query += ' WHERE DATE(created_at) = ?'
+      params.push(date)
+    }
+    
+    query += ' ORDER BY priority DESC, created_at DESC'
+    
+    const [rows] = await db.execute(query, params)
     return NextResponse.json(rows)
   } catch (error) {
     console.error('Database error:', error)
