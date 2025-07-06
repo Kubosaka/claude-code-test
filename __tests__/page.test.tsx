@@ -17,10 +17,15 @@ describe('Todo App', () => {
   })
 
   it('renders the todo app title', async () => {
-    fetchSpy.mockResolvedValueOnce({
-      ok: true,
-      json: async () => [],
-    })
+    fetchSpy
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => [],
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => [],
+      })
 
     await act(async () => {
       render(<Home />)
@@ -30,10 +35,15 @@ describe('Todo App', () => {
   })
 
   it('renders input field and add button', async () => {
-    fetchSpy.mockResolvedValueOnce({
-      ok: true,
-      json: async () => [],
-    })
+    fetchSpy
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => [],
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => [],
+      })
 
     await act(async () => {
       render(<Home />)
@@ -49,10 +59,15 @@ describe('Todo App', () => {
       { id: 2, text: 'Another todo', completed: true, priority: 2 },
     ]
 
-    fetchSpy.mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockTodos,
-    })
+    fetchSpy
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockTodos,
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => [],
+      })
 
     await act(async () => {
       render(<Home />)
@@ -60,6 +75,7 @@ describe('Todo App', () => {
 
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledWith('/api/todos')
+      expect(fetch).toHaveBeenCalledWith('/api/todos/dates')
     })
 
     expect(screen.getByText('Test todo')).toBeInTheDocument()
@@ -74,11 +90,19 @@ describe('Todo App', () => {
       })
       .mockResolvedValueOnce({
         ok: true,
+        json: async () => [],
+      })
+      .mockResolvedValueOnce({
+        ok: true,
         json: async () => {},
       })
       .mockResolvedValueOnce({
         ok: true,
         json: async () => [{ id: 1, text: 'New todo', completed: false, priority: 1 }],
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => [],
       })
 
     await act(async () => {
@@ -110,10 +134,15 @@ describe('Todo App', () => {
   })
 
   it('does not add empty todo', async () => {
-    fetchSpy.mockResolvedValueOnce({
-      ok: true,
-      json: async () => [],
-    })
+    fetchSpy
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => [],
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => [],
+      })
 
     await act(async () => {
       render(<Home />)
@@ -125,8 +154,8 @@ describe('Todo App', () => {
       fireEvent.click(addButton)
     })
 
-    // Should only be called once for initial fetch, not for adding empty todo
-    expect(fetchSpy).toHaveBeenCalledTimes(1)
+    // Should only be called twice for initial fetches, not for adding empty todo
+    expect(fetchSpy).toHaveBeenCalledTimes(2)
   })
 
   it('toggles todo completion', async () => {
@@ -141,11 +170,19 @@ describe('Todo App', () => {
       })
       .mockResolvedValueOnce({
         ok: true,
+        json: async () => [],
+      })
+      .mockResolvedValueOnce({
+        ok: true,
         json: async () => {},
       })
       .mockResolvedValueOnce({
         ok: true,
         json: async () => [{ id: 1, text: 'Test todo', completed: true, priority: 1 }],
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => [],
       })
 
     await act(async () => {
@@ -186,7 +223,15 @@ describe('Todo App', () => {
       })
       .mockResolvedValueOnce({
         ok: true,
+        json: async () => [],
+      })
+      .mockResolvedValueOnce({
+        ok: true,
         json: async () => {},
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => [],
       })
       .mockResolvedValueOnce({
         ok: true,
@@ -216,6 +261,74 @@ describe('Todo App', () => {
     // Verify the todo item is no longer present in the DOM
     await waitFor(() => {
       expect(screen.queryByText('Test todo')).not.toBeInTheDocument()
+    })
+  })
+
+  it('renders date selector with all button', async () => {
+    fetchSpy
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => [],
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => [
+          { date: '2023-01-01', count: 5, completed_count: 3 },
+          { date: '2023-01-02', count: 2, completed_count: 1 },
+        ],
+      })
+
+    await act(async () => {
+      render(<Home />)
+    })
+
+    await waitFor(() => {
+      expect(screen.getByText('すべて')).toBeInTheDocument()
+    })
+  })
+
+  it('filters todos by date when date tab is clicked', async () => {
+    const mockDateSummaries = [
+      { date: '2023-01-01', count: 2, completed_count: 1 },
+    ]
+    const mockFilteredTodos = [
+      { id: 1, text: 'Filtered todo', completed: false, priority: 1 },
+    ]
+
+    fetchSpy
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => [],
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockDateSummaries,
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockFilteredTodos,
+      })
+
+    await act(async () => {
+      render(<Home />)
+    })
+
+    await waitFor(() => {
+      expect(screen.getByText('2023/01/01 (1/2)')).toBeInTheDocument()
+    })
+
+    const dateButton = screen.getByText('2023/01/01 (1/2)')
+    
+    await act(async () => {
+      fireEvent.click(dateButton)
+    })
+
+    await waitFor(() => {
+      expect(fetchSpy).toHaveBeenCalledWith('/api/todos?date=2023-01-01')
+    })
+
+    await waitFor(() => {
+      expect(screen.getByText('Filtered todo')).toBeInTheDocument()
     })
   })
 })
